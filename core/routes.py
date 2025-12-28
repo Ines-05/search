@@ -13,9 +13,9 @@ from typing import List, Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import the search function from scripts
-from scripts.execute import search_products as execute_search
-from scripts.execute import extract_filters_agent
-from scripts.execute import execute_query
+from scripts.execute_hervens import search_products as execute_search
+from scripts.product_hervens import extract_filters_agent_hervens as extract_filters_agent
+from scripts.execute_query_hervens import execute_query_hervens as execute_query
 
 # Initialiser le router
 router = APIRouter(tags=["Search"])

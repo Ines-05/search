@@ -19,7 +19,8 @@ import re
 import unicodedata
 from typing import Dict, Any, List
 from pymongo import MongoClient
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from pymongo.errors import OperationFailure
 
 try:
@@ -41,8 +42,9 @@ if not MONGODB_URI:
 
 # Configuration Gemini pour les embeddings
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai_client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    genai_client = genai.Client(api_key=GEMINI_API_KEY)
 else:
     print("⚠️ Warning: GEMINI_API_KEY not set. Semantic search will be disabled.")
 
@@ -87,12 +89,12 @@ def _generate_embeddings(text: str) -> List[float]:
         return []
     
     try:
-        result = genai.embed_content(
-            model="models/text-embedding-004",
-            content=text,
-            task_type="retrieval_query"
+        result = genai_client.models.embed_content(
+            model="text-embedding-004",
+            contents=text,
+            config=types.EmbedContentConfig(task_type="RETRIEVAL_QUERY")
         )
-        return result['embedding']
+        return result.embeddings[0].values
     except Exception as e:
         print(f"❌ Erreur lors de la génération des embeddings: {e}")
         return []

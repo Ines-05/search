@@ -5,5 +5,5 @@ pymongo
 python-dotenv
 requests
 deep-translator
-google-generativeai
+google-genai
 openai

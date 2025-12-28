@@ -1,7 +1,7 @@
 import os
 import json
 from typing import Dict, Any, Optional
-import google.generativeai as genai
+from google import genai
 from openai import OpenAI
 try:
     from dotenv import load_dotenv
@@ -34,8 +34,7 @@ load_dotenv()
 # Initialiser le client Gemini
 gemini_client = None
 if "GEMINI_API_KEY" in os.environ:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    gemini_client = genai
+    gemini_client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 else:
     print("Warning: GEMINI_API_KEY environment variable not set. Gemini client will not be available.")
 
@@ -273,8 +272,7 @@ def _call_gemini_llm(prompt: str, model_name: str = "gemini-2.5-flash-lite") -> 
         print("Error: Gemini client is not configured. Please set GEMINI_API_KEY.")
         return None
     try:
-        model = genai.GenerativeModel(model_name)
-        response = model.generate_content(prompt)
+        response = gemini_client.models.generate_content(model=model_name, contents=prompt)
         return response.text
     except Exception as e:
         print(f"Error calling Gemini LLM ({model_name}): {e}")

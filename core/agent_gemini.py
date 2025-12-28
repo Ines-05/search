@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import os
 import json
@@ -8,7 +9,8 @@ import time
 load_dotenv()
 
 # Configuration de Gemini (sera reconfigurée dynamiquement)
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+# genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+genai_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def save_to_json_file(data: list, filename: str = "extracted_foods.json"):
     """
@@ -237,16 +239,19 @@ Tu es un assistant intelligent spécialisé dans l'extraction d'informations de 
 Renvoie UNIQUEMENT l'objet JSON, sans texte additionnel."""
 
     # Envoi de la requête à Gemini
-    model = genai.GenerativeModel('gemini-2.0-flash-lite')
+    # model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
     # Créer le contenu avec l'image et le prompt
-    response = model.generate_content([
-        prompt,
-        {
-            'mime_type': 'image/jpeg',
-            'data': image_bytes
-        }
-    ])
+    response = genai_client.models.generate_content(
+        model='gemini-2.0-flash-lite',
+        contents=[
+            prompt,
+            types.Part.from_bytes(
+                data=image_bytes,
+                mime_type='image/jpeg'
+            )
+        ]
+    )
 
     # Extraction du texte JSON renvoyé
     content = response.text.strip()
@@ -363,7 +368,8 @@ def process_all_images(images_folder: str = "image", output_file: str = "extract
             current_key_index += 1
             images_with_current_key = 0
             print(f"\n🔄 Changement de clé API → Clé #{current_key_index + 1}")
-            genai.configure(api_key=api_keys[current_key_index])
+            global genai_client
+            genai_client = genai.Client(api_key=api_keys[current_key_index])
             # Petite pause pour éviter les rate limits
             time.sleep(2)
         
@@ -412,7 +418,7 @@ def process_all_images(images_folder: str = "image", output_file: str = "extract
                     current_key_index += 1
                     images_with_current_key = 0
                     print(f"\n⚠️ Ressources épuisées → Changement de clé API → Clé #{current_key_index + 1}")
-                    genai.configure(api_key=api_keys[current_key_index])
+                    genai_client = genai.Client(api_key=api_keys[current_key_index])
                     time.sleep(5)
                 else:
                     print("\n⚠️ Toutes les clés API sont épuisées, pause de 10 secondes...")

@@ -18,7 +18,7 @@ import os
 import json
 import time
 from typing import Dict, Any, Optional, List
-import google.generativeai as genai
+from google import genai
 from openai import OpenAI
 
 try:
@@ -30,10 +30,11 @@ except ImportError:
 load_dotenv()
 
 # --- Configuration des API Keys ---
-gemini_client = None
-if "GEMINI_API_KEY" in os.environ:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    gemini_client = genai
+# gemini_client = None  # No longer needed as global config
+# if "GEMINI_API_KEY" in os.environ:
+#     # genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+#     # gemini_client = genai
+#     pass
 
 openai_client = None
 if "OPENAI_API_KEY" in os.environ:
@@ -247,9 +248,8 @@ def _call_gemini_llm(prompt: str, model_name: str = "gemini-2.5-flash-lite", api
         print("Gemini API key not provided")
         return None
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(model_name)
-        response = model.generate_content(prompt)
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(model=model_name, contents=prompt)
         return response.text
     except Exception as e:
         print(f"Error calling Gemini LLM ({model_name}): {e}")

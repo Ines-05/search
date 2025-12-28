@@ -118,6 +118,14 @@ def execute_query_api(query: str, limit: int = 10):
             "error": str(e)
         }
 
+def search_products(user_query: str, use_vector_search: bool = True, limit: int = 10, verbose: bool = False):
+    """
+    Wrapper to match the interface expected by core/routes.py.
+    """
+    parsed_output = extract_filters_agent_hervens(user_query)
+    # Note: use_vector_search and verbose are currently ignored or handled inside execute_query_hervens
+    return execute_query_hervens(parsed_output, limit=limit)
+
 def main():
     import argparse
 

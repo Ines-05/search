@@ -19,9 +19,9 @@ import time
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 try:
-    import google.generativeai as genai
+    from google import genai
 except ImportError:
-    print("⚠️  google-generativeai not installed. Install with: pip install google-generativeai")
+    print("⚠️  google-genai not installed. Install with: pip install google-genai")
     sys.exit(1)
 
 load_dotenv()
@@ -40,7 +40,8 @@ if not MONGODB_URI:
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not set in environment variables")
 
-genai.configure(api_key=GEMINI_API_KEY)
+# genai.configure(api_key=GEMINI_API_KEY)
+genai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 print("="*80)
 print("🔧 GÉNÉRATION DES EMBEDDINGS - DB HERVENS")
@@ -144,12 +145,12 @@ try:
             product_text = create_product_text(doc)
             
             # Générer l'embedding
-            embedding_result = genai.embed_content(
-                model=f"models/{EMBEDDING_MODEL}",
-                content=product_text
+            embedding_result = genai_client.models.embed_content(
+                model=EMBEDDING_MODEL,
+                contents=product_text
             )
             
-            embedding_vector = embedding_result['embedding']
+            embedding_vector = embedding_result.embeddings[0].values
             
             # Préparer la mise à jour
             updates.append(UpdateOne(
