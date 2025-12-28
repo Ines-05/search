@@ -7,7 +7,7 @@ import sys
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any, Union
 
 # Add parent directory to path to import from scripts
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -46,11 +46,11 @@ class ProductResponse(BaseModel):
     tags: Optional[List[str]] = None
     price: Optional[dict] = None  # {amount, currency, display}
     image: Optional[str] = None  # Pour produits (single URL)
-    images: Optional[List[str]] = None  # Pour accommodations (array)
+    images: Optional[Any] = None  # Peut être une liste ou un objet
     location: Optional[dict] = None  # {city, country, coordinates}
     capacity: Optional[dict] = None  # {guests, bedrooms, beds, bathrooms}
     availability: Optional[dict] = None  # {status}
-    attributes: Optional[dict] = None  # {brand, color, roomType, etc.}
+    attributes: Optional[Any] = None  # Peut être un objet ou une liste (Attribute Pattern)
     meta: Optional[dict] = None  # {source, rating, reviews_count}
     rating: Optional[dict] = None  # {score, reviewsCount}
     similarity_score: Optional[float] = None
